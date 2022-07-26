@@ -7,13 +7,13 @@ class VideoService extends Service {
 		let total = 10;
 		obj.keyword = obj.keyword ? obj.keyword : "";
 		// 计数，分组，排序
-		let sql = `SELECT v.*,u.username, COUNT(c.vid) cnum FROM video v LEFT JOIN comment c ON c.vid = v.vid LEFT JOIN user u ON u.uid=v.uid WHERE v.STATUS=1 
+		let sql = `SELECT v.*,u.username, COUNT(c.vid) cnum FROM video v LEFT JOIN video_comment c ON c.vid = v.vid LEFT JOIN user u ON u.uid=v.uid WHERE v.STATUS=1 
 		AND (vtitle LIKE '%${obj.keyword}%' OR vtext LIKE '%${obj.keyword}%' OR username LIKE '%${obj.keyword}%' OR videotype LIKE '%${obj.keyword}%')
 		GROUP BY v.vid ORDER BY ${obj.keyword ? "watchnum" : "createtime"} DESC LIMIT ${(obj.pagenum - 1) * total},${total}`;
 		// console.log(obj.pagenum, total);
 		// 总记录数
 		// let sql2 = `SELECT COUNT(*) totalnum FROM video WHERE STATUS=1 AND (vtitle LIKE "%${obj.keyword}%" OR vtext LIKE "%${obj.keyword}%")`;
-		let sql2 = `SELECT v.*,u.username, COUNT(c.vid) cnum FROM video v LEFT JOIN comment c ON c.vid = v.vid LEFT JOIN user u ON u.uid=v.uid WHERE v.STATUS=1 
+		let sql2 = `SELECT v.*,u.username, COUNT(c.vid) cnum FROM video v LEFT JOIN video_comment c ON c.vid = v.vid LEFT JOIN user u ON u.uid=v.uid WHERE v.STATUS=1 
 		AND (vtitle LIKE '%${obj.keyword}%' OR vtext LIKE '%${obj.keyword}%' OR username LIKE '%${obj.keyword}%' OR videotype LIKE '%${obj.keyword}%')
 		GROUP BY v.vid ORDER BY ${obj.keyword ? "watchnum" : "createtime"} DESC`;
 		// 初始页面
@@ -36,7 +36,7 @@ class VideoService extends Service {
 		let total = 10;
 		obj.keyword = obj.keyword ? obj.keyword : "";
 		// 计数，分组，排序
-		let sql = `SELECT v.*,u.username, COUNT(c.vid) cnum FROM video v LEFT JOIN comment c ON c.vid = v.vid LEFT JOIN user u ON u.uid=v.uid WHERE v.STATUS=1 
+		let sql = `SELECT v.*,u.username, COUNT(c.vid) cnum FROM video v LEFT JOIN video_comment c ON c.vid = v.vid LEFT JOIN user u ON u.uid=v.uid WHERE v.STATUS=1 
 		AND (vtitle LIKE '%${obj.keyword}%' OR vtext LIKE '%${obj.keyword}%' OR username LIKE '%${obj.keyword}%' OR videotype LIKE '%${obj.keyword}%')
 		AND v.uid=?
 		GROUP BY v.vid ORDER BY ${obj.keyword ? "watchnum" : "createtime"} DESC LIMIT ${(obj.pagenum - 1) * total},${total}`;
@@ -72,15 +72,15 @@ class VideoService extends Service {
 	async getBestVideo() {
 		// let result = { code: 1, Msg: "获取成功" };
 		let result = { data: {}, code: 200, message: "获取成功" };
-		let sql = `SELECT v.*,u.username,u.userimg,COUNT(c.vid) cnum,commentsum.sums FROM video v 
-		LEFT JOIN comment c ON c.vid = v.vid 
+		let sql = `SELECT v.*,u.username,u.userimg,COUNT(c.vid) cnum,comment_count.sums FROM video v 
+		LEFT JOIN video_comment c ON c.vid = v.vid 
 		LEFT JOIN user u ON u.uid = v.uid 
 		INNER JOIN (SELECT vi.vid, likecount + watchnum + COUNT(ci.cid) sums FROM video vi
-		LEFT JOIN comment ci ON ci.vid = vi.vid 
+		LEFT JOIN video_comment ci ON ci.vid = vi.vid 
 		GROUP BY vi.vid
 		ORDER BY sums DESC
 		LIMIT 1
-		) commentsum ON v.vid = commentsum.vid
+		) comment_count ON v.vid = comment_count.vid
 		WHERE v.STATUS=1 and u.status=1 and v.vid
 		GROUP BY v.vid`;
 		try {
@@ -97,7 +97,7 @@ class VideoService extends Service {
 		let result = { data: {}, code: 200, message: "获取视频信息成功" };
 		let vidSql = "SELECT uid,vtitle,vcontent,vtext,videotype,fengmian,createtime,watchnum,likecount FROM video v WHERE v.vid=? AND v.`status`=1";
 		let uidSql = "SELECT t1.*,t2.* FROM (SELECT uid,usersign,userimg,username,gender,uage,consttell,gamelike FROM user u WHERE u.uid=? AND u.`status`=1) as t1,(SELECT COUNT(v.uid) sumvideo, SUM(v.likecount) sumlikecount,SUM(v.watchnum) sumwatchnum FROM video v WHERE v.uid=? AND v.`status`=1) as t2";
-		let commentDataSql = "SELECT c.cid,c.uid,c.content,c.createtime,u.username,u.userimg FROM `comment` c LEFT JOIN `user` u ON u.uid=c.uid WHERE c.vid=? AND c.`status`=1 ORDER BY c.createtime DESC";
+		let commentDataSql = "SELECT c.cid,c.uid,c.comment_content,c.createtime,u.username,u.userimg FROM `video_comment` c LEFT JOIN `user` u ON u.uid=c.uid WHERE c.vid=? AND c.`status`=1 ORDER BY c.createtime DESC";
 		const vData = await this.app.mysql.query(vidSql, [obj.vid]);
 		if (vData.length !== 0) {
 			// result = { code: 1, Msg: "获取视频信息成功", video: vData[0] };

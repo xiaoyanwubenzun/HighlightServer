@@ -16,7 +16,7 @@ module.exports = appInfo => {
 	config.keys = appInfo.name + "_1614753788209_9549";
 
 	// add your middleware config here
-	// config.middleware = [];
+	// config.middleware = ["originWhiteList"];
 
 	// add your user config here
 	const userConfig = {
@@ -31,9 +31,9 @@ module.exports = appInfo => {
 		}
 	};
 
-	// userConfig.origin = {
-	//     whitelist:["http://localhost:8080","http://localhost:8081"]
-	// }
+	// userConfig.security = {
+	// 	domainWhiteList: ["http://localhost:8080", "http://localhost:63342"]
+	// };
 	// 跨域处理配置
 	userConfig.cors = {
 		origin: "http://localhost:8080", // 不能是*
@@ -65,7 +65,7 @@ module.exports = appInfo => {
 			password: "",
 			db: 0
 		}
-	}
+	};
 	// session配置
 	// userConfig.session = {
 	// 	key: "HIGHT_SESSION", // 设置session cookie里面的key

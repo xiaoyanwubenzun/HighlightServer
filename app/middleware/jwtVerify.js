@@ -4,7 +4,7 @@
 const whiteList = ["/user/login", "/user/logon", "/user/changePassword", "/common/svgImg"];
 
 module.exports = options => {
-	return async function(ctx, next){
+	return async function(ctx, next) {
 		// 判断接口路径是否在白名单
 		if (!whiteList.some(item => item === ctx.request.url)) {
 			// 拿到token,这个是自定义请求头,前端如果定义大写Highlight-Token最后还是会变小写

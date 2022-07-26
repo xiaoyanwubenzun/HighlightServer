@@ -1,3 +1,4 @@
+"use strict";
 const Service = require("egg").Service;
 class RedisService extends Service {
 	// 设置

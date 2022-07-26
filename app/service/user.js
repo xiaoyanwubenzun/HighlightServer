@@ -49,8 +49,8 @@ class UserService extends Service {
 		const sql = `SELECT u.uid,u.userimg AS user_img,u.username AS user_name,u.gender AS user_gender,u.uage AS user_age,u.usersign AS user_sign,
 			IFNULL(SUM(v.watchnum), 0) wnum,
 			IFNULL(SUM(v.likecount),0) likenum,
-			IFNULL(SUM(v.commentcount),0) commentnum,COUNT(v.uid) vnum,
-			IFNULL(SUM(v.watchnum), 0)+IFNULL(SUM(v.likecount),0)+COUNT(v.uid)+IFNULL(SUM(v.commentcount),0) sums FROM user u LEFT JOIN video v ON v.uid=u.uid WHERE v.status=1 and u.status=1 GROUP BY u.uid ORDER BY sums DESC`;
+			IFNULL(SUM(v.comment_count),0) comment_count,COUNT(v.uid) vnum,
+			IFNULL(SUM(v.watchnum), 0)+IFNULL(SUM(v.likecount),0)+COUNT(v.uid)+IFNULL(SUM(v.comment_count),0) sums FROM user u LEFT JOIN video v ON v.uid=u.uid WHERE v.status=1 and u.status=1 GROUP BY u.uid ORDER BY sums DESC`;
 		try {
 			const data = await this.app.mysql.query(sql);
 			result.message = "查询所有用户贡献成功";
