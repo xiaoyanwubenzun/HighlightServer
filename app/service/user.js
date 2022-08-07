@@ -64,7 +64,7 @@ class UserService extends Service {
 	async getUserBestVideo(obj) {
 		// let result = { code: 1, Msg: "查询此用户热度最高视频成功" };
 		let result = { data: {}, code: 200, message: "查询此用户热度最高视频成功" };
-		const sql = "SELECT v.vid,u.username,v.vtitle,v.vtext,v.videotype,v.fengmian,v.createtime,v.watchnum,v.likecount,COUNT(c.vid) cnum,v.watchnum + v.likecount + COUNT(c.vid) sums FROM video v LEFT JOIN`comment` c ON c.vid = v.vid LEFT JOIN user u ON u.uid = v.uid WHERE v.uid = ? AND v.`status` = 1 AND u.`status` = 1 GROUP BY v.vid ORDER BY sums DESC LIMIT 2";
+		const sql = "SELECT v.vid,u.username,v.vtitle,v.vtext,v.videotype,v.fengmian,v.create_time,v.watchnum,v.likecount,COUNT(c.vid) cnum,v.watchnum + v.likecount + COUNT(c.vid) sums FROM video v LEFT JOIN`video_comment` c ON c.vid = v.vid LEFT JOIN user u ON u.uid = v.uid WHERE v.uid = ? AND v.`status` = 1 AND u.`status` = 1 GROUP BY v.vid ORDER BY sums DESC LIMIT 2";
 		const data = await this.app.mysql.query(sql, [obj.searchUserId]);
 		if (data.length === 0) {
 			// result = { code: 0, Msg: "查询所有用户贡献失败" };

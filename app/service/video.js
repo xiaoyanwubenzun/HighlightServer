@@ -9,17 +9,17 @@ class VideoService extends Service {
 		// 计数，分组，排序
 		let sql = `SELECT v.*,u.username, COUNT(c.vid) cnum FROM video v LEFT JOIN video_comment c ON c.vid = v.vid LEFT JOIN user u ON u.uid=v.uid WHERE v.STATUS=1 
 		AND (vtitle LIKE '%${obj.keyword}%' OR vtext LIKE '%${obj.keyword}%' OR username LIKE '%${obj.keyword}%' OR videotype LIKE '%${obj.keyword}%')
-		GROUP BY v.vid ORDER BY ${obj.keyword ? "watchnum" : "createtime"} DESC LIMIT ${(obj.pagenum - 1) * total},${total}`;
-		// console.log(obj.pagenum, total);
+		GROUP BY v.vid ORDER BY ${obj.keyword ? "watchnum" : "create_time"} DESC LIMIT ${(obj.page_num - 1) * total},${total}`;
+		// console.log(obj.page_num, total);
 		// 总记录数
 		// let sql2 = `SELECT COUNT(*) totalnum FROM video WHERE STATUS=1 AND (vtitle LIKE "%${obj.keyword}%" OR vtext LIKE "%${obj.keyword}%")`;
 		let sql2 = `SELECT v.*,u.username, COUNT(c.vid) cnum FROM video v LEFT JOIN video_comment c ON c.vid = v.vid LEFT JOIN user u ON u.uid=v.uid WHERE v.STATUS=1 
 		AND (vtitle LIKE '%${obj.keyword}%' OR vtext LIKE '%${obj.keyword}%' OR username LIKE '%${obj.keyword}%' OR videotype LIKE '%${obj.keyword}%')
-		GROUP BY v.vid ORDER BY ${obj.keyword ? "watchnum" : "createtime"} DESC`;
+		GROUP BY v.vid ORDER BY ${obj.keyword ? "watchnum" : "create_time"} DESC`;
 		// 初始页面
 		// let sql3 = `SELECT v.*,u.username, COUNT(c.vid) cnum FROM video v LEFT JOIN comment c ON c.vid = v.vid LEFT JOIN user u ON u.uid = v.uid WHERE v.STATUS=1
 		// and u.status=1
-		// GROUP BY v.vid ORDER BY createtime DESC LIMIT ${(obj.pagenum - 1) * total},${total}`;
+		// GROUP BY v.vid ORDER BY create_time DESC LIMIT ${(obj.page_num - 1) * total},${total}`;
 		try {
 			const data = await this.app.mysql.query(sql);
 			let totalNum = await this.app.mysql.query(sql2);
@@ -39,13 +39,13 @@ class VideoService extends Service {
 		let sql = `SELECT v.*,u.username, COUNT(c.vid) cnum FROM video v LEFT JOIN video_comment c ON c.vid = v.vid LEFT JOIN user u ON u.uid=v.uid WHERE v.STATUS=1 
 		AND (vtitle LIKE '%${obj.keyword}%' OR vtext LIKE '%${obj.keyword}%' OR username LIKE '%${obj.keyword}%' OR videotype LIKE '%${obj.keyword}%')
 		AND v.uid=?
-		GROUP BY v.vid ORDER BY ${obj.keyword ? "watchnum" : "createtime"} DESC LIMIT ${(obj.pagenum - 1) * total},${total}`;
+		GROUP BY v.vid ORDER BY ${obj.keyword ? "watchnum" : "create_time"} DESC LIMIT ${(obj.page_num - 1) * total},${total}`;
 		// 总记录数
 		let sql2 = `SELECT COUNT(*) totalnum FROM video v WHERE STATUS=1 AND (v.vtitle LIKE '%${obj.keyword}%' OR v.vtext LIKE '%${obj.keyword}%') AND v.uid=?`;
 		// 初始页面
 		// let sql3 = `SELECT v.*,u.username, COUNT(c.vid) cnum FROM video v LEFT JOIN comment c ON c.vid = v.vid LEFT JOIN user u ON u.uid = v.uid WHERE v.STATUS=1
 		// and u.status=1
-		// GROUP BY v.vid ORDER BY createtime DESC LIMIT ${(obj.pagenum - 1) * total},${total}`;
+		// GROUP BY v.vid ORDER BY create_time DESC LIMIT ${(obj.page_num - 1) * total},${total}`;
 		try {
 			const data = await this.app.mysql.query(sql, [obj.uid]);
 			let totalNum = await this.app.mysql.query(sql2, [obj.uid]);
@@ -95,9 +95,9 @@ class VideoService extends Service {
 	async getVideoInfo(obj) {
 		// let result = { code: 1, Msg: "获取视频信息成功" };
 		let result = { data: {}, code: 200, message: "获取视频信息成功" };
-		let vidSql = "SELECT uid,vtitle,vcontent,vtext,videotype,fengmian,createtime,watchnum,likecount FROM video v WHERE v.vid=? AND v.`status`=1";
+		let vidSql = "SELECT uid,vtitle,vcontent,vtext,videotype,fengmian,create_time,watchnum,likecount FROM video v WHERE v.vid=? AND v.`status`=1";
 		let uidSql = "SELECT t1.*,t2.* FROM (SELECT uid,usersign,userimg,username,gender,uage,consttell,gamelike FROM user u WHERE u.uid=? AND u.`status`=1) as t1,(SELECT COUNT(v.uid) sumvideo, SUM(v.likecount) sumlikecount,SUM(v.watchnum) sumwatchnum FROM video v WHERE v.uid=? AND v.`status`=1) as t2";
-		let commentDataSql = "SELECT c.cid,c.uid,c.comment_content,c.createtime,u.username,u.userimg FROM `video_comment` c LEFT JOIN `user` u ON u.uid=c.uid WHERE c.vid=? AND c.`status`=1 ORDER BY c.createtime DESC";
+		let commentDataSql = "SELECT c.cid,c.uid,c.comment_content,c.create_time,u.username,u.userimg FROM `video_comment` c LEFT JOIN `user` u ON u.uid=c.uid WHERE c.vid=? AND c.`status`=1 ORDER BY c.create_time DESC";
 		const vData = await this.app.mysql.query(vidSql, [obj.vid]);
 		if (vData.length !== 0) {
 			// result = { code: 1, Msg: "获取视频信息成功", video: vData[0] };
@@ -122,8 +122,8 @@ class VideoService extends Service {
 			// return result;
 		}
 		const commentData = await this.app.mysql.query(commentDataSql, [obj.vid]);
-		// result = { code: 1, Msg: "获取视频、作者、评论信息成功", video: vData[0], user: uData[0], comment: JSON.stringify(commentData) === "{}" ? [{ cid: 1, content: "还没有评论哦", createtime: "1998-06-29T12:30:00.000Z", uid: 1, userimg: "http://localhost:8090/public/imgupload/defaultuserimg.jpg", username: "管理员" }] : commentData };
-		result.data.comment = JSON.stringify(commentData) === "{}" ? [{ cid: 1, content: "还没有评论哦", createtime: "1998-06-29T12:30:00.000Z", uid: 1, userimg: "http://localhost:8090/public/imgupload/defaultuserimg.jpg", username: "管理员" }] : commentData;
+		// result = { code: 1, Msg: "获取视频、作者、评论信息成功", video: vData[0], user: uData[0], comment: JSON.stringify(commentData) === "{}" ? [{ cid: 1, content: "还没有评论哦", create_time: "1998-06-29T12:30:00.000Z", uid: 1, userimg: "http://localhost:8090/public/imgupload/defaultuserimg.jpg", username: "管理员" }] : commentData };
+		result.data.comment = JSON.stringify(commentData) === "{}" ? [{ cid: 1, content: "还没有评论哦", create_time: "1998-06-29T12:30:00.000Z", uid: 1, userimg: "http://localhost:8090/public/imgupload/defaultuserimg.jpg", username: "管理员" }] : commentData;
 		if (vData[0].uid !== obj.uid) {
 			await this.app.mysql.query(`UPDATE video v SET v.watchnum=v.watchnum+1 WHERE vid=${obj.vid}`);
 		}
