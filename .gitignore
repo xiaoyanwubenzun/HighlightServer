@@ -1,7 +1,7 @@
 .github/
 .idea/
-app/public/imgupload/
-app/public/videoupload/
+app/public/imgUpload/
+app/public/videoUpload/
 logs/
 node_modules/
 run/
