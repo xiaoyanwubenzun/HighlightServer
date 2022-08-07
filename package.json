@@ -1,5 +1,5 @@
 {
-	"name": "HighlightServer",
+	"name": "highlightserver",
 	"version": "1.0.0",
 	"description": "用户服务端",
 	"private": true,
